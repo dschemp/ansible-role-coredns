@@ -4,6 +4,8 @@ Install and configure CoreDNS on Linux.
 
 ## Role Variables
 
+The following variable declarations show the [default](defaults/main.yml) values.
+
 ### General
 
 ```yaml
@@ -76,12 +78,12 @@ coredns_default_zone_entries: []
 
 ## Example Playbook
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
 ```yaml
 - hosts: servers
   roles:
-     - { role: dschemp.coredns }
+     - name: dschemp.coredns
+       vars:
+         coredns_default_zone_domain: intra.net
 ```
 
 ## License

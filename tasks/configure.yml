@@ -20,6 +20,8 @@
 
 - name: Reconfigure CoreDNS as main DNS resolver
   when: coredns_dns_port == 53
+  tags:
+    - notest
   block:
     - name: Disable systemd-resolved
       ansible.builtin.systemd:

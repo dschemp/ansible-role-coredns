@@ -8,7 +8,7 @@
   when: ansible_service_mgr != 'systemd'
 
 - name: Populate service facts
-  service_facts:
+  ansible.builtin.service_facts:
 
 - name: Ensure CoreDNS is not running
   ansible.builtin.systemd:

@@ -1,0 +1,45 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+; ==============================================
+;  {{ ansible_managed }}
+;  Last updated: {{ ansible_date_time.iso8601 }}
+; ==============================================
+
+; base domain
+$ORIGIN {{ coredns_default_zone_domain }}.
+; default TTL in this zone
+$TTL {{ coredns_default_zone_ttl }}
+
+; Start of Authority
+@  IN  SOA  {{ ansible_hostname }}  hostmaster (
+    {{ ansible_date_time.epoch }}  ; serial number
+    12h  ; Refresh
+    15m  ; Retry
+    1w   ; Expire
+    1h   ; Minimum
+)
+   IN  NS  {{ ansible_hostname }}
+
+; managed nameserver entries
+{% if ansible_default_ipv4.address is defined %}
+{{ "{:20}".format(ansible_hostname) }}  IN  A       {{ ansible_default_ipv4.address }}
+{% endif %}
+{% if ansible_default_ipv6.address is defined %}
+{{ "{:20}".format(ansible_hostname) }}  IN  AAAA    {{ ansible_default_ipv6.address }}
+{% endif %}
+
+{% if coredns_default_zone_entries | length > 0 %}
+; managed host entries
+
+{% for addr in coredns_default_zone_entries %}
+{% if addr.comment is defined %}; {{ addr.comment }}
+{% endif %}
+{% if addr.entries is defined and addr.entries | length > 0 %}
+{% for entry in addr.entries %}
+{{ "{:20}".format(addr.name) }}  IN  {{ "{:6}".format(entry.type) }}  {{ "{:20}".format(entry.value) }}
+{% endfor %}
+{% else %}
+; No entries yet!
+{% endif %}
+
+{% endfor %}
+{% endif %}

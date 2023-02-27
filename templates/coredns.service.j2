@@ -1,0 +1,29 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# ==============================================
+#  {{ ansible_managed }}
+#  Last updated: {{ ansible_date_time.iso8601 }}
+# ==============================================
+
+[Unit]
+Description=CoreDNS DNS server
+Documentation=https://coredns.io
+After=network.target
+
+[Service]
+PermissionsStartOnly=true
+LimitNOFILE=1048576
+LimitNPROC=512
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+User={{ coredns_install_account }}
+Group={{ coredns_install_account }}
+WorkingDirectory=~
+ExecStart={{ (coredns_install_path, 'coredns') | path_join }} \
+  -conf={{ (coredns_install_path, 'Corefile') | path_join }} \
+  -dns.port={{ coredns_dns_port }}
+ExecReload=/bin/kill -SIGUSR1 $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

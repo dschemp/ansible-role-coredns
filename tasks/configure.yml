@@ -1,0 +1,34 @@
+---
+- name: Copy systemd service file
+  ansible.builtin.template:
+    src: coredns.service.j2
+    dest: /etc/systemd/system/coredns.service
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable CoreDNS systemd service if wanted
+  ansible.builtin.systemd:
+    name: coredns
+    enabled: "{{ coredns_service_enabled | bool }}"
+
+- name: Set CoreDNS systemd service state
+  ansible.builtin.systemd:
+    name: coredns
+    state: "{% if coredns_service_start | bool %}started{% else %}stopped{% endif %}"
+
+- name: Reconfigure CoreDNS as main DNS resolver
+  when: coredns_dns_port == 53
+  block:
+    - name: Disable systemd-resolved
+      ansible.builtin.systemd:
+        name: systemd-resolved
+        enabled: false
+        state: stopped
+
+    - name: Configure resolv.conf
+      ansible.builtin.copy:
+        dest: /etc/resolv.conf
+        content: |
+          nameserver 127.0.0.1

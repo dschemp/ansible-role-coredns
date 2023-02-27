@@ -1,0 +1,39 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# ==============================================
+#  {{ ansible_managed }}
+#  Last updated: {{ ansible_date_time.iso8601 }}
+# ==============================================
+
+. {
+	{% if (coredns_forwarders_enabled | bool) %}
+	forward . {{ coredns_forwarders | join(" ") }} {
+		{% if coredns_tls_forwarder_servername | length > 0 %}
+		tls_servername {{ coredns_tls_forwarder_servername }}
+		{% endif %}
+	}
+	{% endif %}
+	{% if (coredns_plugin_auto_enabled | bool) %}
+	auto {
+		# Autoload zone files from {{ (coredns_install_path, 'zones') | path_join }}/<DOMAIN>.zone files.
+		directory {{ (coredns_install_path, 'zones') | path_join }} (.*)\.zone {1}
+	}
+	{% endif %}
+	{% if (coredns_plugin_cache_enabled | bool) %}
+	cache
+	{% endif %}
+	{% if (coredns_plugin_loadbalance_enabled | bool) %}
+	loadbalance
+	{% endif %}
+	{% if (coredns_plugin_prometheus_enabled | bool) %}
+	prometheus {{ coredns_plugin_prometheus_listen_address }}
+	{% endif %}
+	{% if (coredns_plugin_logging_enabled | bool) %}
+	log
+	{% endif %}
+	{% if (coredns_plugin_errors_enabled | bool) %}
+	errors
+	{% endif %}
+	{% if (coredns_plugin_minimal_enabled | bool) %}
+	minimal
+	{% endif %}
+}

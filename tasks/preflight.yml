@@ -1,0 +1,17 @@
+---
+- name: Check DNS port number
+  ansible.builtin.meta: end_play
+  when: not (coredns_dns_port <= 65535)
+
+- name: Assert usage of systemd as an init system
+  ansible.builtin.meta: end_play
+  when: ansible_service_mgr != 'systemd'
+
+- name: Populate service facts
+  service_facts:
+
+- name: Ensure CoreDNS is not running
+  ansible.builtin.systemd:
+    name: coredns
+    state: stopped
+  when: "'coredns.service' in services"

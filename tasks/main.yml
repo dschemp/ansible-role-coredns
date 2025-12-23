@@ -1,51 +1,60 @@
 ---
-- ansible.builtin.include_tasks: preflight.yml
+- name: "Include preflight tasks."
+  ansible.builtin.include_tasks: "preflight.yml"
 
-- name: Create user and group
+- name: "Create user and group."
   ansible.builtin.user:
     name: "{{ coredns_install_account }}"
-    home: /var/lib/coredns
-    shell: /usr/sbin/nologin
+    home: "/var/lib/coredns"
+    shell: "/usr/sbin/nologin"
     system: true
 
-- name: Ensure zones folder is empty
+- name: "Ensure zones folder is empty."
   ansible.builtin.file:
     path: "{{ (coredns_install_path, 'zones') | path_join }}"
-    state: absent
+    state: "absent"
 
-- name: Create folders
+- name: "Create application directories."
   ansible.builtin.file:
     path: "{{ item }}"
-    state: directory
+    state: "directory"
     owner: "{{ coredns_install_account }}"
     group: "{{ coredns_install_account }}"
-    mode: '0755'
+    mode: "0755"
   with_items:
     - "{{ coredns_install_path }}"
     - "{{ (coredns_install_path, 'zones') | path_join }}"
 
-- name: "Install CoreDNS {{ coredns_version }}"
+- name: "Download and unzip CoreDNS."
   ansible.builtin.unarchive:
-    src: "https://github.com/coredns/coredns/releases/download/v{{ coredns_version }}/coredns_{{ coredns_version }}_linux_amd64.tgz"
+    src: "{{ coredns_download_url }}"
     dest: "{{ coredns_install_path }}"
     remote_src: true
     owner: "{{ coredns_install_account }}"
     group: "{{ coredns_install_account }}"
     creates: "{{ (coredns_install_path, 'coredns') | path_join }}"
+  notify: "Restart {{ role_name }}."
 
-- name: Copy Corefile
+- name: "Copy Corefile."
   ansible.builtin.template:
-    src: Corefile.j2
+    src: "Corefile.j2"
     dest: "{{ (coredns_install_path, 'Corefile') | path_join }}"
     owner: "{{ coredns_install_account }}"
     group: "{{ coredns_install_account }}"
-    mode: '0644'
+    mode: "0644"
+  notify: "Restart {{ role_name }}."
 
 - name: "Copy default zone {{ coredns_default_zone_domain }}"
+  when:
+    - "coredns_default_zone_create | bool"
+    - "coredns_default_zone_domain | length > 0"
   ansible.builtin.template:
-    src: default.zone.j2
+    src: "default.zone.j2"
     dest: "{{ (coredns_install_path, 'zones', coredns_default_zone_domain + '.zone') | path_join }}"
-    mode: '0644'
-  when: coredns_default_zone_create | bool and coredns_default_zone_domain | length > 0
+    mode: "0644"
 
-- ansible.builtin.include_tasks: configure.yml
+- name: "Include configuration tasks."
+  ansible.builtin.include_tasks: "configure.yml"
+
+- name: "Flush handlers."
+  ansible.builtin.meta: "flush_handlers"

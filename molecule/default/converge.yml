@@ -1,7 +1,5 @@
 ---
-- name: Converge
-  hosts: all
-  tasks:
-    - name: "Include dschemp.coredns"
-      ansible.builtin.include_role:
-        name: "dschemp.coredns"
+- name: "Converge."
+  hosts: "all"
+  roles:
+    - "dschemp.coredns"

@@ -1,8 +1,5 @@
 #jinja2: trim_blocks: True, lstrip_blocks: True
-# ==============================================
-#  {{ ansible_managed }}
-#  Last updated: {{ ansible_date_time.iso8601 }}
-# ==============================================
+{{ ansible_managed | comment }}
 
 . {
 	{% if (coredns_forwarders_enabled | bool) %}

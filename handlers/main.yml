@@ -1,0 +1,6 @@
+---
+- name: "Restart {{ role_name }}."
+  become: true
+  ansible.builtin.service:
+    name: "{{ coredns_service_name }}"
+    state: "{{ 'restarted' if coredns_service_state == 'started' else 'stopped' }}"

@@ -1,21 +1,23 @@
 ---
-coredns_version: 1.10.0
+coredns_version: "1.13.2"
 
-coredns_install_account: coredns
-coredns_install_path: /opt/coredns
+coredns_download_url: "https://github.com/coredns/coredns/releases/download/v{{ coredns_version }}/coredns_{{ coredns_version }}_linux_amd64.tgz"
+
+coredns_install_account: "coredns"
+coredns_install_path: "/opt/coredns"
 coredns_dns_port: 53
 
 coredns_service_enabled: true
-coredns_service_start: true
+coredns_service_state: "started"
 
 # Forward DNS requests to another server
 # disabling this makes this basically an only authorative server in case it serves zone files
 coredns_forwarders_enabled: true
 coredns_forwarders:
   # - https://cloudflare-dns.com/dns-query
-  - tls://1.1.1.1
-  - tls://1.0.0.1
-coredns_tls_forwarder_servername: cloudflare-dns.com
+  - "tls://1.1.1.1"
+  - "tls://1.0.0.1"
+coredns_tls_forwarder_servername: "cloudflare-dns.com"
 
 # Autoload zone files
 coredns_plugin_auto_enabled: true
@@ -31,13 +33,13 @@ coredns_plugin_loadbalance_enabled: true
 coredns_plugin_cache_enabled: true
 # Enable prometheus metrics gathering (:9153/metrics)
 coredns_plugin_prometheus_enabled: false
-coredns_plugin_prometheus_listen_address: :9153
+coredns_plugin_prometheus_listen_address: ":9153"
 
 # automatically generate a default zone
 coredns_default_zone_create: true
 # base domain
-coredns_default_zone_domain: home.internal
-coredns_default_zone_ttl: 5m
+coredns_default_zone_domain: "home.internal"
+coredns_default_zone_ttl: "5m"
 coredns_default_zone_entries: []
   # - name: postgres-1
   #   comment: Postgres Server

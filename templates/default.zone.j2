@@ -1,8 +1,5 @@
 #jinja2: trim_blocks: True, lstrip_blocks: True
-; ==============================================
-;  {{ ansible_managed }}
-;  Last updated: {{ ansible_date_time.iso8601 }}
-; ==============================================
+{{ ansible_managed | comment(decoration="; ") }}
 
 ; base domain
 $ORIGIN {{ coredns_default_zone_domain }}.
@@ -10,21 +7,21 @@ $ORIGIN {{ coredns_default_zone_domain }}.
 $TTL {{ coredns_default_zone_ttl }}
 
 ; Start of Authority
-@  IN  SOA  {{ ansible_hostname }}  hostmaster (
-    {{ ansible_date_time.epoch }}  ; serial number
+@  IN  SOA  {{ ansible_facts['hostname'] }}  hostmaster (
+    {{ ansible_facts['date_time'].epoch }}  ; serial number
     12h  ; Refresh
     15m  ; Retry
     1w   ; Expire
     1h   ; Minimum
 )
-   IN  NS  {{ ansible_hostname }}
+   IN  NS  {{ ansible_facts['hostname'] }}
 
 ; managed nameserver entries
-{% if ansible_default_ipv4.address is defined %}
-{{ "{:20}".format(ansible_hostname) }}  IN  A       {{ ansible_default_ipv4.address }}
+{% if ansible_facts['default_ipv4'].address is defined %}
+{{ "{:20}".format(ansible_facts['hostname']) }}  IN  A       {{ ansible_facts['default_ipv4'].address }}
 {% endif %}
-{% if ansible_default_ipv6.address is defined %}
-{{ "{:20}".format(ansible_hostname) }}  IN  AAAA    {{ ansible_default_ipv6.address }}
+{% if ansible_facts['default_ipv6'].address is defined %}
+{{ "{:20}".format(ansible_facts['hostname']) }}  IN  AAAA    {{ ansible_facts['default_ipv6'].address }}
 {% endif %}
 
 {% if coredns_default_zone_entries | length > 0 %}

@@ -16,7 +16,7 @@ coredns_install_path: /opt/coredns
 coredns_dns_port: 53
 
 coredns_service_enabled: true
-coredns_service_start: true
+coredns_service_state: "started"
 ```
 
 ### Forwarder
